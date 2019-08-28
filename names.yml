@@ -80,7 +80,7 @@ services:
       - target: 5000
         published: 5003
         mode: ingress
-    healtcheck:
+    healthcheck:
       disable: True
 
   global_dnsrr:
