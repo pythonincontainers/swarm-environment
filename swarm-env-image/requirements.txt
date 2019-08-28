@@ -1,0 +1,4 @@
+flask==1.0.2
+flask_api==1.1
+dnspython==1.16.0
+netifaces==0.10.9

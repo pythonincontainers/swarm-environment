@@ -1,0 +1,31 @@
+version: "3.7"
+
+volumes:
+  my_vol:
+
+networks:
+  vol_net:
+    driver: overlay
+    name: vol_net
+    attachable: True
+
+services:
+  tester:
+    image: pythonincontainers/volumes:v1
+    volumes:
+      - target: /data
+        source: my_vol
+        type: volume
+    networks:
+      - vol_net
+    deploy:
+      mode: replicated
+      replicas: 6
+      endpoint_mode: vip
+    environment:
+      TASK_ID: "{{.Task.ID}}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+    ports:
+      - target: 5000
+        published: 5000
+        mode: ingress

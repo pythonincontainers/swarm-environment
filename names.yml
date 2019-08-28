@@ -1,0 +1,115 @@
+version: "3.7"
+
+networks:
+  names_net:
+    driver: overlay
+    name: names_net
+    attachable: true
+
+services:
+  replicated_vip:
+    image: pythonincontainers/swarm-env:v1
+    networks:
+      - names_net
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
+    labels:
+      com.example.deployment.mode: "replicated"
+      com.example.deployment.endpoint: "vip"
+    environment:
+      SERVICE_NAME: "{{.Service.Name}}"
+      SERVICE_ID: "{{.Service.ID}}"
+      SERVICE_LABELS: "{{.Service.Labels}}"
+      NODE_ID: "{{.Node.ID}}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_ID: "{{.Task.ID}}"
+      TASK_NAME: "{{.Task.Name}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+    ports:
+      - target: 5000
+        published: 5001
+        mode: ingress
+
+  replicated_dnsrr:
+    image: pythonincontainers/swarm-env:v1
+    networks:
+      - names_net
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: dnsrr
+    labels:
+      com.example.deployment.mode: "replicated"
+      com.example.deployment.endpoint: "dnsrr"
+    environment:
+      SERVICE_NAME: "{{.Service.Name}}"
+      SERVICE_ID: "{{.Service.ID}}"
+      SERVICE_LABELS: "{{.Service.Labels}}"
+      NODE_ID: "{{.Node.ID}}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_ID: "{{.Task.ID}}"
+      TASK_NAME: "{{.Task.Name}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+    ports:
+      - target: 5000
+        published: 5002
+        mode: host
+
+  global_vip:
+    image: pythonincontainers/swarm-env:v1
+    networks:
+      - names_net
+    deploy:
+      mode: global
+      endpoint_mode: vip
+    labels:
+      com.example.deployment.mode: "global"
+      com.example.deployment.endpoint: "vip"
+    environment:
+      SERVICE_NAME: "{{.Service.Name}}"
+      SERVICE_ID: "{{.Service.ID}}"
+      SERVICE_LABELS: "{{.Service.Labels}}"
+      NODE_ID: "{{.Node.ID}}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_ID: "{{.Task.ID}}"
+      TASK_NAME: "{{.Task.Name}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+    ports:
+      - target: 5000
+        published: 5003
+        mode: ingress
+    healtcheck:
+      disable: True
+
+  global_dnsrr:
+    image: pythonincontainers/swarm-env:v1
+    networks:
+      - names_net
+    deploy:
+      mode: global
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == worker
+    labels:
+      com.example.deployment.mode: "global"
+      com.example.deployment.endpoint: "dnsrr"
+    environment:
+      SERVICE_NAME: "{{.Service.Name}}"
+      SERVICE_ID: "{{.Service.ID}}"
+      SERVICE_LABELS: "{{.Service.Labels}}"
+      NODE_ID: "{{.Node.ID}}"
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+      TASK_ID: "{{.Task.ID}}"
+      TASK_NAME: "{{.Task.Name}}"
+      TASK_SLOT: "{{.Task.Slot}}"
+    ports:
+      - target: 5000
+        published: 5004
+        mode: host
+    healthcheck:
+      interval: 5s
+      timeout: 2s
+      retries: 1
